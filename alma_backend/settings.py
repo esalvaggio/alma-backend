@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'alma_backend',  # for backend services, such as interacting with external APIs
     'user',             # for users
     'essays',           # for essays
+    'cards',            # for cards
 ]
 
 REST_FRAMEWORK = {
@@ -142,6 +143,8 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+
+OPENAI_API_KEY = env('OPENAI_API_KEY')
 
 
 # Static files (CSS, JavaScript, Images)
