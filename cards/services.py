@@ -14,7 +14,7 @@ def generate_card_data(essay):
         'Content-Type': 'application/json'
     }
     data = {
-        "model": "gpt-3.5-turbo",
+        "model": "gpt-4-0125-preview",
         "messages": [
             {
                 "role": "system",
@@ -38,25 +38,27 @@ The following is the essay section:"""
 
 def create_cards(essay, cards_data):
     if not cards_data:
-        return
-    choice_content = cards_data.get('choices', [])[0].get('message', {}).get('content', '')
+        return False
+    choice_content_str = cards_data.get('choices', [])[0].get('message', {}).get('content', '')
     try:
-        cards_info = json.loads(choice_content)
+        cards_info = json.loads(choice_content_str)
     except json.JSONDecodeError:
         logger.error("Failed to parse data from OpenAI response")
-        return
+        return False
+    card_content = cards_info['choices']
     cards = []
-    for key, card_info in cards_info.items():
+    for c in card_content:
         card = Card(
             essay=essay,
-            question = card_info['question'],
-            answer = card_info['answer'],
+            question = c['question'],
+            answer = c['answer'],
             next_review_date = timezone.now() + timedelta(days=1),
             review_interval = 1,
             review_count = 0
         )
         cards.append(card)
     Card.objects.bulk_create(cards)
+    return True
 
 def handle_errors():
     logger.debug("Handling errors after failed card generation attempt")
@@ -64,6 +66,7 @@ def handle_errors():
 def main(essay):
     cards_data = generate_card_data(essay)
     if cards_data:
-        create_cards(essay, cards_data)
+        success = create_cards(essay, cards_data)
+        return success
     else:
         handle_errors()
