@@ -45,9 +45,8 @@ def create_cards(essay, cards_data):
     except json.JSONDecodeError:
         logger.error("Failed to parse data from OpenAI response")
         return False
-    card_content = cards_info['choices']
     cards = []
-    for c in card_content:
+    for c in cards_info['choices']:
         card = Card(
             essay=essay,
             question = c['question'],
