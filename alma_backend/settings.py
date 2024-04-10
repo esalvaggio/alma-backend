@@ -12,21 +12,18 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
-import environ
+import dj_database_url
 
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-env = environ.Env()
-# Reading .env file
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -75,7 +72,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    env('LOCALHOST'),
+    os.environ.get('LOCALHOST'),
 ]
 
 ROOT_URLCONF = 'alma_backend.urls'
@@ -104,13 +101,11 @@ WSGI_APPLICATION = 'alma_backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'),
-        'HOST': env('DB_HOST'),
-        'PORT': env('DB_PORT'),
+        'ENGINE': 'django.db.backends.postgresql'
     }
 }
+DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+
 
 
 # Password validation
@@ -143,7 +138,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-OPENAI_API_KEY = env('OPENAI_API_KEY')
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
 
 # Static files (CSS, JavaScript, Images)
