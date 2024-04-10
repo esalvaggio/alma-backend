@@ -1,1 +1,1 @@
-web: gunicorn alma-backend.wsgi
+web: gunicorn alma_backend.wsgi
