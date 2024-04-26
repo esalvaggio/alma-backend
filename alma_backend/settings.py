@@ -73,9 +73,11 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    os.environ.get('LOCALHOST_URL'),
-    os.environ.get('ALMA_UI_URL'),
-    os.environ.get('ALMA_UI_VERCEL_URL'),
+    origin for origin in [
+        os.environ.get('LOCALHOST_URL'),
+        os.environ.get('ALMA_UI_URL'),
+        os.environ.get('ALMA_UI_VERCEL_URL'),
+    ] if origin
 ]
 
 ROOT_URLCONF = 'alma_backend.urls'
