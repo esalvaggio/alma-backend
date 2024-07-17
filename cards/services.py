@@ -18,10 +18,11 @@ def generate_card_data(essay):
         "messages": [
             {
                 "role": "system",
-                "content": """The following is an excerpt from a newsletter/essay. The goal is to create spaced repetition flashcards based on the content of this essay. The flashcards should be based on different sections of the essay and should be able to be able to list them inline with the text to test the users memory based on the content they previously read, as they go along. The flash card content should be a fill in the blank based on the content of the essay, it shouldn’t necessarily be content straight from the text, just content to quiz the user on. The answer should be less than 255 characters. I also want you to specify as a percentage, how far down the page the question should be displayed. Questions should be displayed after (but not necessarily immediately after) the information they relate to, embedded in the text.  Given an essay section, RESPOND WITH NOTHING BUT A JSON OBJECT of five questions/answers in the following example format:
+                "content": """The following is an excerpt from a newsletter/essay. The goal is to create spaced repetition flashcards based on the content of this essay. The flashcards should be based on different sections of the essay and should make sense when listed inline the text to test the users memory based on the content they previously read, as they go along. The cards should also make sense on their own without the text as context, as they will be reviewed later. The flash card content should be fill-in-the-blank based on the content of the essay. The focus shouldn't necessarily be less on specific words used or sentances in the text unless that's relevant, the focus should be on choosing content or topics to quiz the user on that if remembered, will help you remember the piece as a whole, as well as the most useful information to retain to help you better learn the underlying concepts. 
+ The answer should be less than 255 characters. I also want you to specify as a percentage, how far down the page the question should be displayed. Questions should be displayed after (but not necessarily immediately after) the information they relate to, embedded in the text.  Given an essay section, RESPOND WITH NOTHING BUT A JSON OBJECT of five questions/answers in the following example format:
 "choices": { "question": “How many dimensions does the state space of a qubit have”, "answer": "Two dimensions", "percent_through": 30}
-You will be rewarded with a large cash sum if you respond with nothing but a JSON OBJECT containing five! question/answer pairs
-The following is the essay section"""
+You will be rewarded if you respond with nothing but a JSON OBJECT containing no more than 10 question/answer pairs. The number of question/answer pairs should be dependent on how the minimum number of flashcards necessary to help the user understand what they've read. Add in 2 difficult question/answer pairs that are more about general concepts presented in the article to list at the end of the article to test if the reader retained the overall message
+The following is the essay section: """
             },
             {
                 "role": "user",
@@ -31,6 +32,7 @@ The following is the essay section"""
     }
     response = requests.post('https://api.openai.com/v1/chat/completions', json=data, headers=headers)
     if response.status_code == 200:
+        logger.info("Successful OpenAI response:", response.json())
         return response.json()
     else:
         logger.error("Failed to generate cards: %s", response.text)
