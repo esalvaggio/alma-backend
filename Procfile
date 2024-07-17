@@ -1,1 +1,1 @@
-web: gunicorn alma_backend.wsgi --log-file -
+web: gunicorn alma_backend.wsgi

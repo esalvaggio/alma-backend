@@ -32,7 +32,7 @@ The following is the essay section: """
     }
     response = requests.post('https://api.openai.com/v1/chat/completions', json=data, headers=headers)
     if response.status_code == 200:
-        logger.info("Successful OpenAI response:", response.json())
+        logger.info("Successful OpenAI response: %s", response.json())
         return response.json()
     else:
         logger.error("Failed to generate cards: %s", response.text)
@@ -44,7 +44,7 @@ def create_cards(essay, cards_data):
     choice_content_str = cards_data.get('choices', [])[0].get('message', {}).get('content', '')
     try:
         cards_info = json.loads(choice_content_str)
-        logger.info("Successfully deserialized cards response", cards_info)
+        logger.info("Successfully deserialized cards response")
     except json.JSONDecodeError:
         logger.error("Failed to parse data from OpenAI response")
         return False
