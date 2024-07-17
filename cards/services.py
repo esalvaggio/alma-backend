@@ -44,6 +44,7 @@ def create_cards(essay, cards_data):
     choice_content_str = cards_data.get('choices', [])[0].get('message', {}).get('content', '')
     try:
         cards_info = json.loads(choice_content_str)
+        logger.info("Successfully deserialized cards response", cards_info)
     except json.JSONDecodeError:
         logger.error("Failed to parse data from OpenAI response")
         return False
