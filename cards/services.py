@@ -38,19 +38,21 @@ The following is the essay section: """
         logger.error("Failed to generate cards: %s", response.text)
         return None
 
-#Can I deserialize the json into an object and throw an error if that
+
 def create_cards(essay, cards_data):
     if not cards_data:
         return False
     if "questions" not in cards_data:
         logger.error(f"Expected 'questions' in response but did not find it")
         return False
-    choice_content_str = cards_data.get('questions', [])[0].get('message', {}).get('content', '')
     try:
-        cards_info = json.loads(choice_content_str)
+        cards_info = json.loads(cards_data.get('questions', [])[0].get('message', {}).get('content', ''))
         logger.info("Successfully parse cards response: %s", cards_info)
     except json.JSONDecodeError:
         logger.error("Failed to parse data from OpenAI response")
+        return False
+    except IndexError:
+        logger.error("The questions array was empty")
         return False
     cards = []
     for c in cards_info['questions']:
