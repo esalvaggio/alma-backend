@@ -5,12 +5,13 @@ from .models import Card
 from django.utils import timezone
 from datetime import timedelta
 import json
+from .config import Config
 
 logger = logging.getLogger(__name__)
 
 def generate_card_data(essay):
     headers = {
-        'Authorization': f'Bearer {settings.OPENAI_API_KEY}',
+        'Authorization': f'Bearer {Config.OPENAI_API_KEY}',
         'Content-Type': 'application/json'
     }
     data = {
@@ -30,7 +31,7 @@ The following is the essay section: """
             }
         ]
     }
-    response = requests.post('https://api.openai.com/v1/chat/completions', json=data, headers=headers)
+    response = requests.post(Config.OPENAI_ENDPOINT, json=data, headers=headers)
     if response.status_code == 200:
         logger.info("Successful OpenAI response: %s", response.json())
         return response.json()
