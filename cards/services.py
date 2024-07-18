@@ -15,7 +15,7 @@ def generate_card_data(essay):
         'Content-Type': 'application/json'
     }
     data = {
-        "model": "gpt-4-0125-preview",
+        "model": "gpt-4o-mini",
         "messages": [
             {
                 "role": "system",
