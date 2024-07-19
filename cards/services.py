@@ -33,6 +33,7 @@ The following is the essay section: """
     }
     response = requests.post(Config.OPENAI_ENDPOINT, json=data, headers=headers)
     if response.status_code == 200:
+        logger.info("Raw response text: %s", response.text)  
         logger.info("Successful OpenAI response: %s", response.json())
         return response.json()
     else:
