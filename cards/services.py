@@ -15,7 +15,7 @@ def generate_card_data(essay):
         'Content-Type': 'application/json'
     }
     data = {
-        "model": "gpt-4o-mini",
+        "model": "gpt-4o",
         "messages": [
             {
                 "role": "system",
@@ -44,11 +44,11 @@ The following is the essay section: """
 def create_cards(essay, cards_data):
     if not cards_data:
         return False
-    if "questions" not in cards_data:
-        logger.error(f"Expected 'questions' in response but did not find it")
+    if "choices" not in cards_data:
+        logger.error(f"Expected 'choices' in response but did not find it")
         return False
     try:
-        cards_info = json.loads(cards_data.get('questions', [])[0].get('message', {}).get('content', ''))
+        cards_info = json.loads(cards_data.get('choices', [])[0].get('message', {}).get('content', ''))
         logger.info("Successfully parse cards response: %s", cards_info)
     except json.JSONDecodeError:
         logger.error("Failed to parse data from OpenAI response")
