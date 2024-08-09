@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import EssayListCreateAPIView, EssayDetailAPIView, EssayMinimalListView, EssayListDeleteAPIView
+from .views import EssayListCreateAPIView, EssayDetailAPIView, EssayMinimalListView
 
 urlpatterns = [
     path('', EssayListCreateAPIView.as_view(), name='essay-list-create'),
