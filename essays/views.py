@@ -23,9 +23,6 @@ class EssayListCreateAPIView(BaseEssayViewSet, generics.ListCreateAPIView):
 class EssayDetailAPIView(BaseEssayViewSet, generics.RetrieveUpdateDestroyAPIView):
     pass
 
-class EssayListDeleteAPIView(BaseEssayViewSet, generics.DestroyAPIView):
-    pass
-
 class EssayMinimalListView(BaseEssayViewSet, generics.ListAPIView):
     queryset = Essay.objects.all()
     serializer_class = EssayMinimalSerializer
