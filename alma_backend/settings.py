@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 import sys
 import dj_database_url
+from dotenv import load_dotenv
 
 
 
@@ -25,6 +26,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY')
+
+if os.getenv('ENVIRONMENT') != 'prod':
+    dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+    load_dotenv(dotenv_path)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -105,12 +110,21 @@ WSGI_APPLICATION = 'alma_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql'
+if os.getenv('ENVIRONMENT') != 'prod':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',  # Use an in-memory SQLite database for tests
+        }
     }
-}
-DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql'
+        }
+    }
+    DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')

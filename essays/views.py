@@ -7,9 +7,10 @@ from cards.services import main as generate_and_create_cards
 import logging
 logger = logging.getLogger(__name__)
 class BaseEssayViewSet(generics.GenericAPIView):
-    queryset = Essay.objects.all()
     serializer_class = EssaySerializer
     permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+         return Essay.objects.filter(user = self.request.user)
 
 class EssayListCreateAPIView(BaseEssayViewSet, generics.ListCreateAPIView):
         def perform_create(self, serializer):

@@ -59,6 +59,7 @@ def create_cards(essay, cards_data):
     cards = []
     for c in cards_info['questions']:
         card = Card(
+            user = essay.user,
             essay=essay,
             question = c['question'],
             answer = c['answer'],
