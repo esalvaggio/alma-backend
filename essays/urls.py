@@ -3,7 +3,6 @@ from .views import EssayListCreateAPIView, EssayDetailAPIView, EssayMinimalListV
 
 urlpatterns = [
     path('', EssayListCreateAPIView.as_view(), name='essay-list-create'),
-    path('<int:pk>/', EssayListDeleteAPIView.as_view(), name='essay-list-delete'),
     path('<int:pk>/', EssayDetailAPIView.as_view(), name='essay-detail'),
     path('minimal/', EssayMinimalListView.as_view(), name='essay-minimal-list'),
 ]
