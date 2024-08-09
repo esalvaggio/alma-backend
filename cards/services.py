@@ -58,8 +58,8 @@ def create_cards(essay, cards_data):
         return False
     cards = []
     for c in cards_info['questions']:
-        # need to pass in user here. 
         card = Card(
+            user = essay.user,
             essay=essay,
             question = c['question'],
             answer = c['answer'],

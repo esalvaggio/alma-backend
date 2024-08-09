@@ -2,8 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 
-# Create your models here.
-class User(AbstractUser): # look into AbstractBaseUser
+class User(AbstractUser):
     user_id = models.AutoField(primary_key=True)
     first_name = models.CharField(max_length=200)
     last_name = models.CharField(max_length=200, blank=True, null=True)

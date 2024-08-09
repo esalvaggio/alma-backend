@@ -1,8 +1,10 @@
 import pytest
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 from .models import Card
 from essays.models import Essay
+
+User = get_user_model()
 
 @pytest.mark.django_db
 class TestCardViews:
@@ -11,6 +13,7 @@ class TestCardViews:
         self.client = client
         self.user = User.objects.create(username='testuser', password='12345')
         self.client.force_login(self.user)
+
         self.essay = Essay.objects.create(
             user=self.user,
             content="Sample essay content"
@@ -20,6 +23,7 @@ class TestCardViews:
             essay=self.essay,
             question="What is the capital of France?",
             answer="Paris",
+            percent_through=20,
             next_review_date=timezone.now() - timezone.timedelta(days=1),  # Overdue
             review_count=1
         )
@@ -28,6 +32,7 @@ class TestCardViews:
             essay=self.essay,
             question="What is the capital of Germany?",
             answer="Berlin",
+            percent_through=20,
             next_review_date=timezone.now() + timezone.timedelta(days=1),  # Due tomorrow
             review_count=1
         )

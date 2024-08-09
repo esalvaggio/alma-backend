@@ -11,5 +11,5 @@ class Card(models.Model):
     review_interval = models.IntegerField(default=1)
     review_count = models.IntegerField(default=0)
 
-def __str__(self):
+    def __str__(self):
         return self.question
