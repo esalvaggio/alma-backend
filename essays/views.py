@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, serializers
 from .models import Essay
 from django.db import transaction
 from .serializers import EssayMinimalSerializer, EssaySerializer
@@ -13,12 +13,12 @@ class BaseEssayViewSet(generics.GenericAPIView):
          return Essay.objects.filter(user = self.request.user)
 
 class EssayListCreateAPIView(BaseEssayViewSet, generics.ListCreateAPIView):
-        def perform_create(self, serializer):
-            with transaction.atomic():
-                essay = serializer.save(user=self.request.user)
-                success = generate_and_create_cards(essay)
-                if not success:
-                    raise Exception("Failed to create cards for the essay.")
+    def perform_create(self, serializer):
+        with transaction.atomic():
+            essay = serializer.save(user=self.request.user)
+            success = generate_and_create_cards(essay)
+            if not success:
+                raise serializers.ValidationError("Failed to create cards for the essay.")
 
 class EssayDetailAPIView(BaseEssayViewSet, generics.RetrieveUpdateDestroyAPIView):
     pass
