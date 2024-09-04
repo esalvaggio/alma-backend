@@ -64,7 +64,7 @@ def create_cards(essay, cards_data):
             question = c['question'],
             answer = c['answer'],
             percent_through = int(c['percent_through']),
-            next_review_date = timezone.now() + timedelta(days=1),
+            next_review_date = timezone.now(),
             review_interval = 1,
             review_count = 0
         )
