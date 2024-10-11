@@ -19,17 +19,49 @@ def generate_card_data(essay):
         "messages": [
             {
                 "role": "system",
-                "content": """The following is an excerpt from a newsletter/essay. The goal is to create spaced repetition flashcards based on the content of this essay. The flashcards should be based on different sections of the essay and should make sense when listed inline the text to test the users memory based on the content they previously read, as they go along. The cards should also make sense on their own without the text as context, as they will be reviewed later. The flash card content should be fill-in-the-blank based on the content of the essay. The focus shouldn't necessarily be less on specific words used or sentences in the text unless that's relevant, the focus should be on choosing content or topics to quiz the user on that if remembered, will help you remember the piece as a whole, as well as the most useful information to retain to help you better learn the underlying concepts. 
- The answer should be less than 255 characters. I also want you to specify as a percentage, how far down the page the question should be displayed. Questions should be displayed after (but not necessarily immediately after) the information they relate to, embedded in the text.  Given an essay section, RESPOND WITH NOTHING BUT A JSON OBJECT of questions/answers in the following example format:
-"questions": { "question": “How many dimensions does the state space of a qubit have”, "answer": "Two dimensions", "percent_through": 30}
-Respond with nothing but a JSON OBJECT containing no more than 10 question/answer pairs. The number of question/answer pairs should be the minimum number of flashcards necessary to help the user understand what they've read. If the article is short, keep the number of cards as small as possible to keep the essay manageable. Add include a final difficult question/answer pair that are more about general concepts presented in the article to list at the end of the article to test if the reader retained the overall message.
-The following is the essay section: """
+                "content": """You are an assistant that generates spaced repetition flashcards based on an essay section. The flashcards should be based on different sections of the essay and make sense both inline and standalone if reviewed without the text. They should be fill-in-the-blank questions and focus on key concepts to help the user remember the piece as a whole, as well as retain the underlying concepts presented in the piece, rather than specific words. Answers should be less than 255 characters. Specify a decimal 'percent_through' to indicate where in the essay the question should appear, with a 10-15% padding as to not risk displaying the card before the user has read the content. Include a final, more challenging question to test overall understanding. Return no more than 10 question/answer pairs, adjusting the number of returned pairs based on the length of the article, if shortreturn few pairs. """
             },
             {
                 "role": "user",
                 "content": essay.content
             }
-        ]
+        ],
+        "response_format": {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "flashcard_response",
+                "strict": True,
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                    "questions": {
+                        "type": "array",
+                        "items": {
+                        "type": "object",
+                        "properties": {
+                            "question": {
+                            "type": "string",
+                            "description": "The flashcard question."
+                            },
+                            "answer": {
+                            "type": "string",
+                            "description": "The answer to the flashcard question."
+                            },
+                            "percent_through": {
+                            "type": "number",
+                            "description": "Percentage through the essay where the question should appear."
+                            }
+                        },
+                        "required": ["question", "answer", "percent_through"],
+                        "additionalProperties": False
+                        }
+                    }
+                },
+                "required": ["questions"],
+                "additionalProperties": False
+                }
+            }
+        }
     }
     response = requests.post(Config.OPENAI_ENDPOINT, json=data, headers=headers)
     if response.status_code == 200:
@@ -44,32 +76,52 @@ The following is the essay section: """
 def create_cards(essay, cards_data):
     if not cards_data:
         return False
-    if "choices" not in cards_data:
+    choices = cards_data.get('choices', [])
+    if not choices:
         logger.error(f"Expected 'choices' in response but did not find it")
         return False
+    message = choices[0].get('message', {})
+    if 'refusal' in message:
+        logger.error(f"Assistant refused the request: {message['refusal']}")
+        return False
+    content = message.get('content', {})
+    if not content:
+        logger.error("No 'content' field found in the assistant's message.")
+        return False
     try:
-        cards_info = json.loads(cards_data.get('choices', [])[0].get('message', {}).get('content', ''))
+        cards_info = json.loads(content)
         logger.info("Successfully parse cards response: %s", cards_info)
-    except json.JSONDecodeError:
-        logger.error("Failed to parse data from OpenAI response")
+    except json.JSONDecodeError as e:
+        logger.error("Failed to parse JSON from 'content': {e}")
         return False
     except IndexError:
         logger.error("The questions array was empty")
         return False
     cards = []
     for c in cards_info['questions']:
-        card = Card(
-            user = essay.user,
-            essay=essay,
-            question = c['question'],
-            answer = c['answer'],
-            percent_through = int(c['percent_through']),
-            next_review_date = timezone.now(),
-            review_interval = 1,
-            review_count = 0
-        )
-        cards.append(card)
+        try:
+            card = Card(
+                user = essay.user,
+                essay=essay,
+                question = c['question'],
+                answer = c['answer'],
+                percent_through = int(c['percent_through'] * 100),
+                next_review_date = timezone.now(),
+                review_interval = 1,
+                review_count = 0
+            )
+            cards.append(card)
+        except KeyError as e:
+            logger.error(f"Missing expected key in question data: {e}")
+            continue
+        except ValueError as e:
+            logger.error(f"Invalid data type in question data: {e}")
+            continue
+    if not cards:
+        logger.error("No valid cards were created.")
+        return False
     Card.objects.bulk_create(cards)
+    logger.info(f"Successfully created {len(cards)} cards.")
     return True
 
 def handle_errors():
