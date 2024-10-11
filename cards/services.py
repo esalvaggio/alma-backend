@@ -81,7 +81,7 @@ def create_cards(essay, cards_data):
         logger.error(f"Expected 'choices' in response but did not find it")
         return False
     message = choices[0].get('message', {})
-    if 'refusal' in message:
+    if 'refusal' in message and message['refusal'] != None:
         logger.error(f"Assistant refused the request: {message['refusal']}")
         return False
     content = message.get('content', {})
