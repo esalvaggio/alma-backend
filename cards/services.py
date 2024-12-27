@@ -9,6 +9,7 @@ from .config import Config
 
 logger = logging.getLogger(__name__)
 
+# can i turn off data logging (don't train your model with this content)
 def generate_card_data(essay):
     headers = {
         'Authorization': f'Bearer {Config.OPENAI_API_KEY}',
