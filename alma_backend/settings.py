@@ -83,6 +83,7 @@ CORS_ALLOWED_ORIGINS = [
         os.environ.get('LOCALHOST_URL'),
         os.environ.get('ALMA_UI_URL'),
         os.environ.get('ALMA_UI_VERCEL_URL'),
+        os.environ.get('ALMA_UI_DEPLOYMENT_URL'),
     ] if origin
 ]
 
